@@ -1,0 +1,101 @@
+# Import required libraries
+import pandas as pd
+
+# Load the dataset into a DataFrame
+file_name = r"C:\Users\tapia\Documents\GitHub\Review-Assignments\m1_survey_data.csv"
+df = pd.read_csv(file_name)
+
+# Display the top 5 rows of the dataset
+print("Top 5 rows of the dataset:")
+print(df.head())
+
+# Display the number of rows and columns
+print(f"\nNumber of rows: {df.shape[0]}")
+print(f"Number of columns: {df.shape[1]}")
+
+# Identify the data types of each column
+print("\nData types of each column:")
+print(df.dtypes)
+
+# Print the mean age of the survey participants
+print(f"\nMean age of the survey participants: {df['Age'].mean()}")
+
+# Finding duplicates
+duplicates = df[df.duplicated()]
+print(f"\nNumber of duplicate rows: {duplicates.shape[0]}")
+
+# Removing duplicates
+df = df.drop_duplicates()
+
+# Finding missing values
+missing_values = df.isnull().sum()
+print("\nMissing values in each column:")
+print(missing_values)
+
+# Identify the value that is most frequent (majority) in the WorkLoc column
+majority_workloc = df['WorkLoc'].mode()[0]
+print(f"\nMajority value in WorkLoc column: {majority_workloc}")
+
+# Impute (replace) all the empty rows in the column WorkLoc with the majority value
+df['WorkLoc'] = df['WorkLoc'].fillna(majority_workloc)
+
+# Verify if imputing was successful
+print("\nMissing values in each column after imputation:")
+print(df.isnull().sum())
+
+# List out the various categories in the column 'CompFreq'
+comp_freq_categories = df['CompFreq'].unique()
+print(f"\nCategories in CompFreq column: {comp_freq_categories}")
+
+# Create a new column named 'NormalizedAnnualCompensation'
+def normalize_compensation(row):
+    if row['CompFreq'] == 'Yearly':
+        return row['CompTotal']
+    elif row['CompFreq'] == 'Monthly':
+        return row['CompTotal'] * 12
+    elif row['CompFreq'] == 'Weekly':
+        return row['CompTotal'] * 52
+    else:
+        return None
+
+df['NormalizedAnnualCompensation'] = df.apply(normalize_compensation, axis=1)
+
+# Removing duplicate rows again
+df = df.drop_duplicates()
+
+# Check the number of unique values in the CompFreq column
+unique_comp_freq = df['CompFreq'].nunique()
+print(f"\nNumber of unique values in 'CompFreq': {unique_comp_freq}")
+
+# Number of respondents being paid yearly
+yearly_respondents = df[df['CompFreq'] == 'Yearly'].shape[0]
+print(f"Number of respondents being paid yearly: {yearly_respondents}")
+
+# Median of NormalizedAnnualCompensation
+median_normalized_compensation = df['NormalizedAnnualCompensation'].median()
+print(f"Median NormalizedAnnualCompensation: {median_normalized_compensation}")
+
+# Identify the value counts for the column WorkLoc
+workloc_counts = df['WorkLoc'].value_counts()
+print(f"\nValue counts for WorkLoc column:")
+print(workloc_counts)
+
+# Identify the value that is most frequent (majority) in the Employment column
+majority_employment = df['Employment'].mode()[0]
+print(f"\nMajority category under the Employment column: {majority_employment}")
+
+# Identify the category with the minimum number of rows in UndergradMajor column
+undergradmajor_min = df['UndergradMajor'].value_counts().idxmin()
+print(f"\nCategory with the minimum number of rows in UndergradMajor column: {undergradmajor_min}")
+
+# Impute missing values in ConvertedComp column with median
+median_comp = df['ConvertedComp'].median()
+df['ConvertedComp'] = df['ConvertedComp'].fillna(median_comp)
+
+# Display the number of blank rows under the column EdLevel
+blank_edlevel_rows = df['EdLevel'].isnull().sum()
+print(f"\nNumber of blank rows under the column EdLevel: {blank_edlevel_rows}")
+
+# Display the number of rows missing under the column Country
+missing_country_rows = df['Country'].isnull().sum()
+print(f"Number of missing rows under the column Country: {missing_country_rows}")
